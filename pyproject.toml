@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "mavcam"
+version = "0.1.0"
+description = ""
+authors = ["Willian Galvani <williangalvani@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pymavlink = "^2.4.14"
+v4l2ctl = "^0.1a4"
+Flask = "^1.1.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

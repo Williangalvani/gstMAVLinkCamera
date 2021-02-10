@@ -1,0 +1,59 @@
+<mavlinkcamera>
+  <definition version="7">
+    <model>PotatoCam</model>
+    <vendor>PotatoFarm</vendor>
+  </definition>
+  <parameters>
+    <parameter name="CAM_BRIGHTNESS" type="int32" default="0" v4l2_id="9963776" step="1" max="64" min="-64">
+      <description>Brightness</description>
+    </parameter>
+    <parameter name="CAM_CONTRAST" type="int32" default="32" v4l2_id="9963777" step="1" max="64" min="0">
+      <description>Contrast</description>
+    </parameter>
+    <parameter name="CAM_SATURATION" type="int32" default="56" v4l2_id="9963778" step="1" max="128" min="0">
+      <description>Saturation</description>
+    </parameter>
+    <parameter name="CAM_HUE" type="int32" default="0" v4l2_id="9963779" step="1" max="40" min="-40">
+      <description>Hue</description>
+    </parameter>
+    <parameter name="CAM_WHITEBALAN" type="bool" default="1" v4l2_id="9963788">
+      <description>White Balance Temperature, Auto</description>
+    </parameter>
+    <parameter name="CAM_GAMMA" type="int32" default="100" v4l2_id="9963792" step="1" max="500" min="72">
+      <description>Gamma</description>
+    </parameter>
+    <parameter name="CAM_GAIN" type="int32" default="0" v4l2_id="9963795" step="1" max="100" min="0">
+      <description>Gain</description>
+    </parameter>
+    <parameter name="CAM_POWERLINEF" type="int32" default="1" v4l2_id="9963800">
+      <description>Power Line Frequency</description>
+      <options>
+        <option name="Disabled" value="0"/>
+        <option name="50 Hz" value="1"/>
+        <option name="60 Hz" value="2"/>
+      </options>
+    </parameter>
+    <parameter name="CAM_WHITEBALA1" type="int32" default="4600" v4l2_id="9963802" step="1" max="6500" min="2800">
+      <description>White Balance Temperature</description>
+    </parameter>
+    <parameter name="CAM_SHARPNESS" type="int32" default="3" v4l2_id="9963803" step="1" max="6" min="0">
+      <description>Sharpness</description>
+    </parameter>
+    <parameter name="CAM_BACKLIGHTC" type="int32" default="1" v4l2_id="9963804" step="1" max="2" min="0">
+      <description>Backlight Compensation</description>
+    </parameter>
+    <parameter name="CAM_EXPOSUREAU" type="int32" default="3" v4l2_id="10094849">
+      <description>Exposure, Auto</description>
+      <options>
+        <option name="Manual Mode" value="1"/>
+        <option name="Aperture Priority Mode" value="3"/>
+      </options>
+    </parameter>
+    <parameter name="CAM_EXPOSUREAB" type="int32" default="156" v4l2_id="10094850" step="1" max="5000" min="1">
+      <description>Exposure (Absolute)</description>
+    </parameter>
+    <parameter name="CAM_EXPOSUREA1" type="bool" default="0" v4l2_id="10094851">
+      <description>Exposure, Auto Priority</description>
+    </parameter>
+  </parameters>
+</mavlinkcamera>
