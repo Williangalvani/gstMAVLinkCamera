@@ -10,14 +10,24 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     # Required positional argument
-    parser.add_argument("device", help="video device")
-
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--device", help="video device h264-able")
+    group.add_argument("--pipeline", help="gstreamer pipeline. show end with 'rtph264pay config-interval=1 name=pay0 pt=96'")
+    parser.add_argument("--rtspport", type=int, help="port for the rtsp server to listen on", default=8554)
+    parser.add_argument("--httpport", type=int, help="port for the http server to listen on", default=5000)
+    parser.add_argument("--id", type=int, help="Camera Mavlink ID", default=0)
+    parser.add_argument("--thermal", help="Is is thermal?", default=False, action='store_true')
     args = parser.parse_args()
-    DefinitionGenerator().generate(args.device)
-    stream1=GstServer(args.device)
-    mavlink = MavlinkCameraManager(args.device)
-    server = CameraDefinitionServer(args.device, 5000)
-    stream1.start()
-    server.start()
+    if args.device:
+        DefinitionGenerator().generate(args.device)
+        server = CameraDefinitionServer(args.device, args.httpport)
+        server.start()
+        stream=GstServer(device=args.device, port=args.rtspport)
+        mavlink = MavlinkCameraManager(args.device, camera_id=args.id, thermal=args.thermal, rtspport=args.rtspport)
+    elif args.pipeline:
+        stream=GstServer(pipeline=args.pipeline, port=args.rtspport)
+        mavlink = MavlinkCameraManager(None, camera_id=args.id, thermal=args.thermal, rtspport=args.rtspport)
+    stream.start()
     mavlink.start()
-    stream1.join()
+    stream.join()
+    mavlink.join()

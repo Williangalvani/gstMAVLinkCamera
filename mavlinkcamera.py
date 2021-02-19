@@ -21,10 +21,15 @@ class MavlinkCameraManager(threading.Thread):
     param_map = {}
     param_types = {}
 
-    def __init__(self, device):
+    def __init__(self, device, camera_id=1, thermal=False, rtspport=8554):
         super().__init__()
         self.device = device
-        self.control = Control(device)
+        self.camera_id = camera_id
+        self.rtspport = rtspport
+        self.thermal = thermal
+        print("Thermal:", self.thermal)
+        if self.device:
+            self.control = Control(device)
 
     def wait_conn(self):
         """
@@ -120,11 +125,11 @@ class MavlinkCameraManager(threading.Thread):
         return int.from_bytes(relevant, byteorder="little", signed=True)
 
     def run(self):
-        self.master = mavutil.mavlink_connection('udpout:127.0.0.1:14550', source_system=1, source_component=mavutil.mavlink.MAV_COMP_ID_CAMERA)
+        self.master = mavutil.mavlink_connection('udpout:127.0.0.1:14550', source_system=1, source_component=mavutil.mavlink.MAV_COMP_ID_CAMERA+self.camera_id)
 
         # required?
         self.wait_conn()
-
+        print("Mavlink thread started")
         while True:
             try:
                 raw_msg = self.master.recv_match()
@@ -137,6 +142,7 @@ class MavlinkCameraManager(threading.Thread):
                         self.send_camera_information()
                     elif msg["command"] == MAV_CMD_REQUEST_VIDEO_STREAM_INFORMATION:
                         print("got resquest for video stream information")
+                        print(msg)
                         self.master.mav.command_ack_send(MAV_CMD_REQUEST_VIDEO_STREAM_INFORMATION, common.MAV_RESULT_ACCEPTED)
                         self.send_video_stream_information()
                 elif msg["mavpackettype"] == "PARAM_EXT_REQUEST_READ":
@@ -177,8 +183,8 @@ class MavlinkCameraManager(threading.Thread):
     def send_camera_information(self):
         self.master.mav.camera_information_send(
             0,
-            self.makestring(b"batata", 32),
-            self.makestring(b"biscoito", 32),
+            self.makestring("camera{0}".format(self.camera_id).encode("ascii"), 32),
+            self.makestring("camera{0}".format(self.camera_id).encode("ascii"), 32),
             1,
             0,
             0,
@@ -195,15 +201,30 @@ class MavlinkCameraManager(threading.Thread):
     def send_video_stream_information(self):
         self.master.mav.video_stream_information_send(
             1,
-            1,
+            2 if self.thermal else 1,
             mavutil.mavlink.VIDEO_STREAM_TYPE_RTSP,
-            1,
+            mavutil.mavlink.VIDEO_STREAM_STATUS_FLAGS_RUNNING,
             30,
             1920,
             1080,
             10000,
             0,
             60,
-            self.makestring(b"camera1", 32),
-            self.makestring(b"rtsp://127.0.0.1:8554/test", 160),
+            self.makestring("camera{0}".format(self.camera_id).encode("ascii"), 32),
+            self.makestring("rtsp://127.0.0.1:{0}/stream1".format(self.rtspport).encode("ascii"), 160),
         )
+        if self.thermal:
+            self.master.mav.video_stream_information_send(
+                2,
+                2,
+                mavutil.mavlink.VIDEO_STREAM_TYPE_RTSP,
+                mavutil.mavlink.VIDEO_STREAM_STATUS_FLAGS_RUNNING | mavutil.mavlink.VIDEO_STREAM_STATUS_FLAGS_THERMAL,
+                30,
+                1920,
+                1080,
+                10000,
+                0,
+                60,
+                self.makestring("camera{0}".format(self.camera_id).encode("ascii"), 32),
+                self.makestring("rtsp://127.0.0.1:{0}/thermal".format(self.rtspport).encode("ascii"), 160),
+            )
