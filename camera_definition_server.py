@@ -9,7 +9,7 @@ def hello_world():
 
 class CameraDefinitionServer(threading.Thread):
 
-    def __init__(self, device, port):
+    def __init__(self, device, port=5000):
         super().__init__()
         self.port = port
 
