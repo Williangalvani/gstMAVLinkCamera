@@ -12,9 +12,12 @@ import bs4
 from pymavlink import mavutil
 from pymavlink.dialects.v20 import common
 from pymavlink.dialects.v20.common import CAMERA_CAP_FLAGS_HAS_VIDEO_STREAM
-from pymavlink.dialects.v20.common import CAMERA_CAP_FLAGS_CAPTURE_VIDEO
+from pymavlink.dialects.v20.common import CAMERA_CAP_FLAGS_CAPTURE_VIDEO, CAMERA_CAP_FLAGS_HAS_BASIC_ZOOM
 from pyv4l2.control import Control
 MAV_CMD_REQUEST_VIDEO_STREAM_INFORMATION = 2504
+MAV_CMD_REQUEST_VIDEO_STREAM_STATUS = 2505
+MAV_CMD_REQUEST_CAMERA_SETTINGS = 522
+MAV_CMD_SET_CAMERA_ZOOM = 531
 
 
 class MavlinkCameraManager(threading.Thread):
@@ -146,6 +149,17 @@ class MavlinkCameraManager(threading.Thread):
                         print(msg)
                         self.master.mav.command_ack_send(MAV_CMD_REQUEST_VIDEO_STREAM_INFORMATION, common.MAV_RESULT_ACCEPTED)
                         self.send_video_stream_information()
+                    elif msg["command"] == MAV_CMD_REQUEST_CAMERA_SETTINGS:
+                        self.master.mav.command_ack_send(MAV_CMD_REQUEST_CAMERA_SETTINGS, common.MAV_RESULT_ACCEPTED)
+                        print("sensing camera settings")
+                    elif msg["command"] == MAV_CMD_REQUEST_VIDEO_STREAM_STATUS:
+                        self.master.mav.command_ack_send(MAV_CMD_REQUEST_VIDEO_STREAM_STATUS, common.MAV_RESULT_ACCEPTED)
+                        print("sensing camera settings")
+                    elif msg["command"] == MAV_CMD_SET_CAMERA_ZOOM:
+                        print(msg)
+                        self.master.mav.command_ack_send(MAV_CMD_SET_CAMERA_ZOOM, common.MAV_RESULT_ACCEPTED)
+                        #print("sensing camera settings")
+                        #self.send_stream_status()
                 elif msg["mavpackettype"] == "PARAM_EXT_REQUEST_READ":
                     self.read_param(msg['param_id'])
                 elif msg["mavpackettype"] == "PARAM_EXT_SET":
@@ -193,10 +207,34 @@ class MavlinkCameraManager(threading.Thread):
             640,
             480,
             0,
-            CAMERA_CAP_FLAGS_CAPTURE_VIDEO | CAMERA_CAP_FLAGS_HAS_VIDEO_STREAM,
+            CAMERA_CAP_FLAGS_CAPTURE_VIDEO | CAMERA_CAP_FLAGS_HAS_VIDEO_STREAM | CAMERA_CAP_FLAGS_HAS_BASIC_ZOOM,
             0,
             self.makestring(b"http://127.0.0.1:5000", 140),
         )
+
+
+    def send_camera_settings(self):
+        self.master.mav.camera_settings_send(
+            0,
+            1,
+            1.0,
+            1.0
+        )
+
+
+    def send_stream_status(self):
+        self.master.mav.camera_settings_send(
+            0,
+            1,
+            1,
+            30,
+            1920,
+            1080,
+            10,
+            0,
+            100
+        )
+
 
 
     def send_video_stream_information(self):
