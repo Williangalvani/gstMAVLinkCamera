@@ -21,8 +21,9 @@ class MavlinkCameraManager(threading.Thread):
     param_map = {}
     param_types = {}
 
-    def __init__(self, device, camera_id=1, thermal=False, rtspport=8554):
+    def __init__(self, device, camera_id=1, thermal=False, rtspport=8554, rtspstream=None):
         super().__init__()
+        self.rtspstream = rtspstream.encode("ascii") if rtspstream else None
         self.device = device
         self.camera_id = camera_id
         self.rtspport = rtspport
@@ -211,7 +212,7 @@ class MavlinkCameraManager(threading.Thread):
             0,
             60,
             self.makestring("camera{0}".format(self.camera_id).encode("ascii"), 32),
-            self.makestring("rtsp://127.0.0.1:{0}/stream1".format(self.rtspport).encode("ascii"), 160),
+            self.makestring(self.rtspstream or "rtsp://127.0.0.1:{0}/stream1".format(self.rtspport).encode("ascii"), 160),
         )
         if self.thermal:
             self.master.mav.video_stream_information_send(
@@ -226,5 +227,5 @@ class MavlinkCameraManager(threading.Thread):
                 0,
                 60,
                 self.makestring("camera{0}".format(self.camera_id).encode("ascii"), 32),
-                self.makestring("rtsp://127.0.0.1:{0}/thermal".format(self.rtspport).encode("ascii"), 160),
+                self.makestring(self.rtspstream or "rtsp://127.0.0.1:{0}/thermal".format(self.rtspport).encode("ascii"), 160),
             )
