@@ -1,10 +1,15 @@
 # Barebones Gstreamer Mavlink Camera
 
 This is a barebones implementation of a MAVLink Camera using GStreamer pipelines.
+
+It is able to create rtsp streams from v4l2 devices, generated de definitions xml, and expose the controllers to QGC:
+
+![working example](camera-example.gif "Working example")
+
 ## Requirements:
 
  - gst-rtsp-server (aur)
- - pymavlink from mavlink master
+ - pymavlink
  - Other dependencies in pyproject.toml
 
 ## Usage
