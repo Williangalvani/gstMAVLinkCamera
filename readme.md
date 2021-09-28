@@ -2,7 +2,7 @@
 
 This is a barebones implementation of a MAVLink Camera using GStreamer pipelines.
 
-It is able to create rtsp streams from v4l2 devices, generated de definitions xml, and expose the controllers to QGC:
+It is able to create rtsp streams from v4l2 devices, generate the definitions xml, and expose the controllers to QGC:
 
 ![working example](camera-example.gif "Working example")
 
